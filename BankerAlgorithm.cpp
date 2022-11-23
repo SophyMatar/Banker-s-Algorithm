@@ -1,80 +1,82 @@
-// Banker's Algorithm
 #include <iostream>
+#include <vector>
+#include <fstream>
+
 using namespace std;
 
-int main()
-{
-	// P0, P1, P2, P3, P4 are the Process names here
+int main(int argc, char* argv[]) {
 
-int n, m, i, j, k;
-n = 5; // Processes
-m = 3; // Resources
-int alloc[5][3] = { { 0, 1, 0 }, // P0 // Allocation Matrix
-					{ 2, 0, 0 }, // P1
-					{ 3, 0, 2 }, // P2
-					{ 2, 1, 1 }, // P3
-					{ 0, 0, 2 } }; // P4
+    std::ifstream in(argv[1]);
+    int number;
 
-int max[5][3] = { { 7, 5, 3 }, // P0 // MAX Matrix
-				{ 3, 2, 2 }, // P1
-				{ 9, 0, 2 }, // P2
-				{ 2, 2, 2 }, // P3
-				{ 4, 3, 3 } }; // P4
+    std::vector<int> v;
+    while (in >> number) {
+        v.push_back(number);
+    }
 
-int avail[3] = { 3, 3, 2 }; // Available Resources
+    int p = 5; // number of process
+    int r = 3; // number of  resources
 
-int f[n], ans[n], ind = 0;
-for (k = 0; k < n; k++) {
-	f[k] = 0;
-}
-int need[n][m];
-for (i = 0; i < n; i++) {
-	for (j = 0; j < m; j++)
-	need[i][j] = max[i][j] - alloc[i][j];
-}
-int y = 0;
-for (k = 0; k < 5; k++) {
-	for (i = 0; i < n; i++) {
-	if (f[i] == 0) {
+    int allocation[5][3] = { {v[0], v[1], v[2]}, // allocation array
+                         {v[3], v[4], v[5]},
+                         {v[6], v[7], v[8]},
+                         {v[9], v[10], v[11]},
+                         {v[12], v[13], v[14]} };
 
-		int flag = 0;
-		for (j = 0; j < m; j++) {
-		if (need[i][j] > avail[j]){
-			flag = 1;
-			break;
-		}
-		}
+    int maximum[5][3] = { {v[15], v[16], v[17]},  // maximum array
+                         {v[18], v[19], v[20]},
+                         {v[21], v[22], v[23]},
+                         {v[24], v[25], v[26]},
+                         {v[27], v[28], v[29]} };
 
-		if (flag == 0) {
-		ans[ind++] = i;
-		for (y = 0; y < m; y++)
-			avail[y] += alloc[i][y];
-		f[i] = 1;
-		}
-	}
-	}
-}
+    int available[3] = { v[30], v[31], v[32] }; // available array
 
-int flag = 1;
+    int finish[5], safe[5], index = 0;
+    int need[5][3];
 
-// To check if sequence is safe or not
-for(int i = 0;i<n;i++)
-{
-		if(f[i]==0)
-	{
-		flag = 0;
-		cout << "The given sequence is not safe";
-		break;
-	}
-}
+    for (int k = 0; k < p; k++) {
+        finish[k] = 0;
+    }
+    for (int i = 0; i < p; i++) {              
+        for (int j = 0; j < r; j++)
+            need[i][j] = maximum[i][j] - allocation[i][j];
+    }
 
-if(flag==1)
-{
-	cout << "Following is the SAFE Sequence" << endl;
-	for (i = 0; i < n - 1; i++)
-		cout << " P" << ans[i] << " ->";
-	cout << " P" << ans[n - 1] <<endl;
-}
+    //deciding if the process should wait or proceed
 
-	return (0);
+    for (int k = 0; k < 5; k++) {
+        for (int i = 0; i < p; i++) {
+            if (finish[i] == 0) {
+                int flag = 0;
+                for (int j = 0; j < r; j++) {
+                    if (need[i][j] > available[j]) {
+                        flag = 1;
+                        break;
+                    }
+                }
+                if (flag == 0) {
+                    safe[index++] = i;
+                    for (int y = 0; y < r; y++)
+                        available[y] += allocation[i][y];
+                    finish[i] = 1;
+                }
+            }
+        }
+    }
+
+    int flag = 1;
+
+    for (int i = 0; i < p; i++) {
+        if (finish[i] == 0) {
+            flag = 0;
+            cout << "The given sequence is not safe";
+            break;
+        }
+    }
+    if (flag == 1) {
+        cout << "Following is the SAFE Sequence: " << endl;
+        for (int i = 0; i < p - 1; i++)
+            cout << " P" << safe[i] << " ->";
+        cout << " P" << safe[p - 1] << endl;
+    }
 }
